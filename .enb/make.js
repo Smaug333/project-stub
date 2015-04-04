@@ -1,4 +1,6 @@
-var techs = {
+var fs = require('fs'),
+    path = require('path'),
+    techs = {
         // essential
         fileProvider: require('enb/techs/file-provider'),
         fileMerge: require('enb/techs/file-merge'),
@@ -22,6 +24,7 @@ var techs = {
         htmlFromBemjson: require('enb-bemxjst/techs/html-from-bemjson')
     },
     enbBemTechs = require('enb-bem-techs'),
+    merged = require('./techs/merged'),
     levels = [
         { path: 'libs/bem-core/common.blocks', check: false },
         { path: 'libs/bem-core/desktop.blocks', check: false },
@@ -34,14 +37,25 @@ var techs = {
     ];
 
 module.exports = function(config) {
-    var isProd = process.env.YENV === 'production';
+    var isProd = process.env.YENV === 'production',
+        mergedBundleName = 'merged',
+        pathToMargedBundle = path.join('desktop.bundles', mergedBundleName);
+
+    fs.existsSync(pathToMargedBundle) || fs.mkdirSync(pathToMargedBundle);
+
+    merged(config, pathToMargedBundle);
 
     config.nodes('*.bundles/*', function(nodeConfig) {
+        var isMergedNode = path.basename(nodeConfig.getPath()) === mergedBundleName;
+
+        isMergedNode || nodeConfig.addTechs([
+            [techs.fileProvider, { target: '?.bemjson.js' }],
+            [enbBemTechs.bemjsonToBemdecl]
+        ]);
+
         nodeConfig.addTechs([
             // essential
             [enbBemTechs.levels, { levels: levels }],
-            [techs.fileProvider, { target: '?.bemjson.js' }],
-            [enbBemTechs.bemjsonToBemdecl],
             [enbBemTechs.deps],
             [enbBemTechs.files],
 
@@ -94,6 +108,7 @@ module.exports = function(config) {
             [techs.borschik, { sourceTarget: '?.css', destTarget: '_?.css', tech: 'cleancss', freeze: true, minify: isProd }]
         ]);
 
-        nodeConfig.addTargets([/* '?.bemtree.js', */ '?.html', '_?.css', '_?.js']);
+        nodeConfig.addTargets([/* '?.bemtree.js', */ '_?.css', '_?.js']);
+        isMergedNode || nodeConfig.addTargets(['?.html']);
     });
 };
