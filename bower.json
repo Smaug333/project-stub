@@ -9,6 +9,10 @@
     "libs"
   ],
   "dependencies": {
+    "bem-core": "bem/bem-core#bem-xjst-2x@v2",
     "bem-components": "2.1.0"
+  },
+  "resolutions": {
+    "bem-core": "bem-xjst-2x@v2"
   }
 }

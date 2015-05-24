@@ -18,7 +18,7 @@ var techs = {
         // bemtree: require('enb-bemxjst/techs/bemtree-old'),
 
         // bemhtml
-        bemhtml: require('enb-bemxjst/techs/bemhtml-old'),
+        bemhtml: require('enb-bemxjst-2/techs/bemhtml'),
         htmlFromBemjson: require('enb-bemxjst/techs/html-from-bemjson')
     },
     enbBemTechs = require('enb-bem-techs'),
